@@ -1,1 +1,15 @@
-.venv
+# Python virtual environments (ignore full folders and contents)
+.venv/
+.venv/**
+**/.venv/
+
+venv/
+venv/**
+**/venv/
+
+env/
+env/**
+**/env/
+
+*.venv/
+*.venv/**
