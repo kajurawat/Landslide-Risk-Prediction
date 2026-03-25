@@ -32,9 +32,11 @@ print("  LANDSLIDE RISK PREDICTION — MODEL TRAINING")
 print("=" * 55)
 
 BASE_DIR = Path(__file__).resolve().parent
-DATASET_PATH = BASE_DIR / 'landslide_dataset.csv'
-MODEL_PATH = BASE_DIR / 'best_model.pkl'
-SCALER_PATH = BASE_DIR / 'scaler.pkl'
+PROJECT_ROOT = BASE_DIR.parent
+DATASET_PATH = PROJECT_ROOT / 'data' / 'raw' / 'landslide_dataset.csv'
+ARTIFACTS_DIR = BASE_DIR / 'artifacts'
+MODEL_PATH = ARTIFACTS_DIR / 'best_model.pkl'
+SCALER_PATH = ARTIFACTS_DIR / 'scaler.pkl'
 
 DATASET_COLS = [
     'Rainfall_mm',
@@ -282,13 +284,14 @@ for line in report.splitlines():
     print("    " + line)
 
 # Save model + scaler
+ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
 with open(MODEL_PATH, 'wb') as f:
     pickle.dump({'model': best_model, 'model_name': best_name,
                  'features': FEATURE_COLS}, f)
 with open(SCALER_PATH, 'wb') as f:
     pickle.dump(scaler, f)
 
-print("    Saved → best_model.pkl  |  scaler.pkl")
+print(f"    Saved → {MODEL_PATH}  |  {SCALER_PATH}")
 
 
 
