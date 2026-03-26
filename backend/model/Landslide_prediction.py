@@ -31,28 +31,29 @@ print("=" * 55)
 print("  LANDSLIDE RISK PREDICTION — MODEL TRAINING")
 print("=" * 55)
 
-BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parent
-DATASET_PATH = PROJECT_ROOT / 'data' / 'raw' / 'landslide_dataset.csv'
-ARTIFACTS_DIR = BASE_DIR / 'artifacts'
-MODEL_PATH = ARTIFACTS_DIR / 'best_model.pkl'
-SCALER_PATH = ARTIFACTS_DIR / 'scaler.pkl'
+# BASE_DIR = Path(__file__).resolve().parent
+# PROJECT_ROOT = BASE_DIR.parent
+# DATASET_PATH = PROJECT_ROOT / 'data' / 'raw' / 'landslide_dataset.csv'
+# ARTIFACTS_DIR = BASE_DIR / 'artifacts'
+# MODEL_PATH = ARTIFACTS_DIR / 'best_model.pkl'
+# SCALER_PATH = ARTIFACTS_DIR / 'scaler.pkl'
 
-DATASET_COLS = [
-    'Rainfall_mm',
-    'Slope_Angle',
-    'Soil_Saturation',
-    'Vegetation_Cover',
-    'Earthquake_Activity',
-    'Proximity_to_Water',
-    'Landslide',
-    'Soil_Type_Gravel',
-    'Soil_Type_Sand',
-    'Soil_Type_Silt',
-]
+# DATASET_COLS = [
+#     'Rainfall_mm',
+#     'Slope_Angle',
+#     'Soil_Saturation',
+#     'Vegetation_Cover',
+#     'Earthquake_Activity',
+#     'Proximity_to_Water',
+#     'Landslide',
+#     'Soil_Type_Gravel',
+#     'Soil_Type_Sand',
+#     'Soil_Type_Silt',
+# ]
 
 # The CSV header is malformed in this dataset; enforce the expected schema.
-df = pd.read_csv(DATASET_PATH, header=0, names=DATASET_COLS, usecols=range(10))
+# df = pd.read_csv(DATASET_PATH, header=0, names=DATASET_COLS, usecols=range(10))
+
 print(f"\n[1] Dataset loaded: {df.shape[0]} rows, {df.shape[1]} columns")
 print(f"    Class balance — Landslide=1: {df['Landslide'].sum()}  "
       f"No Landslide=0: {(df['Landslide']==0).sum()}")
@@ -71,14 +72,14 @@ print("\n[2] Adding realistic sensor noise to break artificial boundaries...")
 np.random.seed(42)
 df_noisy = df.copy()
 
-NOISE = {
-    'Rainfall_mm':         40,    # rain gauge ±40 mm variation
-    'Slope_Angle':          8,    # inclinometer ±8° variation
-    'Soil_Saturation':      0.35, # soil sensor ±0.35 overlap around 0.60 boundary
-    'Vegetation_Cover':     0.35, # ±0.35 overlap around 0.50 boundary
-    'Earthquake_Activity':  1.5,  # seismometer ±1.5 overlap around 4.0 boundary
-    'Proximity_to_Water':   0.5,  # ultrasonic ±0.5 overlap around 1.0 boundary
-}
+# NOISE = {
+#     'Rainfall_mm':         40,    # rain gauge ±40 mm variation
+#     'Slope_Angle':          8,    # inclinometer ±8° variation
+#     'Soil_Saturation':      0.35, # soil sensor ±0.35 overlap around 0.60 boundary
+#     'Vegetation_Cover':     0.35, # ±0.35 overlap around 0.50 boundary
+#     'Earthquake_Activity':  1.5,  # seismometer ±1.5 overlap around 4.0 boundary
+#     'Proximity_to_Water':   0.5,  # ultrasonic ±0.5 overlap around 1.0 boundary
+# }
 for col, std in NOISE.items():
     df_noisy[col] += np.random.normal(0, std, len(df_noisy))
 
