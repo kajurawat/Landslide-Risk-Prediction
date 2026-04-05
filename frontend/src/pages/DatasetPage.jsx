@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { getDataset, getDownloadUrl } from "../api/datasetApi";
+import { API_BASE_URL } from "../config";
+
+const rowsPerPage = 20;
+
+function getDownloadUrl(format) {
+  return `${API_BASE_URL}/api/v1/data/download?format=${format}`;
+}
 
 export default function DatasetPage() {
   const [payload, setPayload] = useState(null);
@@ -7,11 +13,6 @@ export default function DatasetPage() {
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [downloadFormat, setDownloadFormat] = useState("csv");
-  const rowsPerPage = 20;
-
-  const handleDownload = () => {
-    window.open(getDownloadUrl(downloadFormat), "_blank");
-  };
 
   useEffect(() => {
     let mounted = true;
@@ -19,7 +20,17 @@ export default function DatasetPage() {
     async function fetchDataset() {
       try {
         setLoading(true);
-        const result = await getDataset();
+        const response = await fetch(`${API_BASE_URL}/api/v1/data`);
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          const body = await response.text();
+          throw new Error(`Expected JSON but received: ${body.slice(0, 80)}`);
+        }
+
+        const result = await response.json();
         if (mounted) {
           setPayload(result);
           setError("");
@@ -40,6 +51,11 @@ export default function DatasetPage() {
     };
   }, []);
 
+  const totalRows = payload?.data?.length ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
+  const startRow = totalRows === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
+  const endRow = Math.min(currentPage * rowsPerPage, totalRows);
+
   const previewRows = useMemo(() => {
     if (!payload?.data) return [];
     const start = (currentPage - 1) * rowsPerPage;
@@ -47,10 +63,9 @@ export default function DatasetPage() {
     return payload.data.slice(start, end);
   }, [payload, currentPage]);
 
-  const totalRows = payload?.data?.length ?? 0;
-  const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
-  const startRow = totalRows === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
-  const endRow = Math.min(currentPage * rowsPerPage, totalRows);
+  const handleDownload = () => {
+    window.open(getDownloadUrl(downloadFormat), "_blank");
+  };
 
   if (loading) {
     return <div className="p-6 text-slate-700">Loading dataset...</div>;
@@ -61,10 +76,10 @@ export default function DatasetPage() {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <main className="mx-auto max-w-7xl px-6 py-10 sm:px-10 lg:px-16">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Dataset</h1>
+          <h1 className="text-3xl font-semibold text-slate-900">Dataset</h1>
           <p className="text-sm text-slate-600">
             Total rows: <strong>{payload?.rows ?? 0}</strong>
           </p>
@@ -98,20 +113,21 @@ export default function DatasetPage() {
               {payload?.columns?.map((col) => (
                 <th
                   key={col}
-                  className="px-3 py-2 font-semibold text-slate-800"
+                  className="whitespace-nowrap px-4 py-2 font-semibold text-slate-800"
                 >
                   {col}
                 </th>
               ))}
             </tr>
           </thead>
-
-
           <tbody>
             {previewRows.map((row, rowIndex) => (
               <tr key={rowIndex} className="border-t border-slate-200">
                 {payload.columns.map((col) => (
-                  <td key={col} className="px-3 py-2 text-slate-700">
+                  <td
+                    key={col}
+                    className="whitespace-nowrap px-4 py-2 text-slate-700"
+                  >
                     {String(row[col] ?? "")}
                   </td>
                 ))}
@@ -152,6 +168,6 @@ export default function DatasetPage() {
           </button>
         </div>
       </div>
-    </section>
+    </main>
   );
 }
