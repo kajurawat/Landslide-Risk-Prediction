@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
 import DatasetPage from "./pages/DatasetPage";
 import PredictPage from "./pages/PredictPage";
@@ -28,9 +29,9 @@ function App() {
   };
 
   return (
-    <div className="app-shell min-h-screen bg-slate-50">
+    <div className="app-shell flex min-h-screen flex-col bg-slate-50">
       <Navbar theme={theme} onToggleTheme={toggleTheme} />
-      <div className="app-shell-content pt-16">
+      <div className="app-shell-content flex-1 pt-16">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/dataset" element={<DatasetPage />} />
@@ -42,6 +43,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
+      <Footer />
     </div>
   );
 }
