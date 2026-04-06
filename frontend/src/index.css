@@ -1,1 +1,222 @@
-@import 'tailwindcss';
+@import url("https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
+
+:root {
+  --portal-bg: #e9eff6;
+  --portal-border: #b7c6d8;
+  --portal-navy: #1f4f88;
+  --page-bg: #eef4fa;
+  --surface-bg: #ffffff;
+  --surface-muted: #f1f5f9;
+  --text-main: #1f2937;
+  --text-soft: #475569;
+  --border-soft: #cbd5e1;
+  --watermark-opacity: 0.06;
+  --navbar-bg: rgba(255, 255, 255, 0.95);
+}
+
+:root[data-theme="dark"] {
+  --portal-bg: #0f172a;
+  --portal-border: #334155;
+  --portal-navy: #93c5fd;
+  --page-bg: #020617;
+  --surface-bg: #0f172a;
+  --surface-muted: #1e293b;
+  --text-main: #e2e8f0;
+  --text-soft: #cbd5e1;
+  --border-soft: #334155;
+  --watermark-opacity: 0.045;
+  --navbar-bg: #0f172a;
+}
+
+html {
+  background-color: var(--page-bg);
+}
+
+body {
+  margin: 0;
+  font-family: "Public Sans", sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--page-bg) 94%, #ffffff 6%) 0%,
+    color-mix(in srgb, var(--page-bg) 98%, #000000 2%) 45%,
+    var(--page-bg) 100%
+  );
+  color: var(--text-main);
+  overscroll-behavior-y: none;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.app-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("/images/logo.png");
+  background-repeat: no-repeat;
+  background-position: center 58%;
+  background-size: min(54vw, 560px);
+  opacity: var(--watermark-opacity);
+  filter: grayscale(100%);
+}
+
+.app-shell-content {
+  position: relative;
+  z-index: 1;
+  background-color: var(--navbar-bg);
+}
+
+.app-navbar {
+  background-color: var(--navbar-bg) !important;
+}
+
+.portal-home {
+  min-height: 100vh;
+  background: var(--portal-bg);
+}
+
+.portal-topbar {
+  background: linear-gradient(90deg, #c8dced 0%, #d9e8f3 100%);
+}
+
+:root[data-theme="dark"] .portal-topbar {
+  background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%);
+}
+
+.portal-bulletin {
+  color: #0f172a;
+}
+
+.portal-slider-card {
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+}
+
+:root[data-theme="dark"] .portal-slider-card {
+  box-shadow: 0 10px 20px rgba(2, 6, 23, 0.45);
+}
+
+.portal-slide {
+  transition: opacity 0.6s ease;
+}
+
+.portal-slide-caption {
+  background: linear-gradient(
+    180deg,
+    rgba(2, 6, 23, 0.06) 0%,
+    rgba(2, 6, 23, 0.75) 90%
+  );
+}
+
+.portal-stat-card {
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
+}
+
+.portal-stat-card:hover {
+  border-color: #93c5fd;
+}
+
+:root[data-theme="dark"] header,
+:root[data-theme="dark"] section,
+:root[data-theme="dark"] article,
+:root[data-theme="dark"] footer {
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="dark"] .bg-white,
+:root[data-theme="dark"] .bg-white\/95 {
+  background-color: var(--surface-bg) !important;
+}
+
+:root[data-theme="dark"] .bg-slate-50,
+:root[data-theme="dark"] .bg-slate-100 {
+  background-color: var(--surface-muted) !important;
+}
+
+:root[data-theme="dark"] .text-slate-900,
+:root[data-theme="dark"] .text-slate-800,
+:root[data-theme="dark"] .text-slate-700,
+:root[data-theme="dark"] .text-slate-600,
+:root[data-theme="dark"] .text-slate-500 {
+  color: var(--text-main) !important;
+}
+
+:root[data-theme="dark"] .text-slate-100 {
+  color: #e2e8f0 !important;
+}
+
+:root[data-theme="dark"] .border-slate-200,
+:root[data-theme="dark"] .border-slate-300 {
+  border-color: var(--border-soft) !important;
+}
+
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea {
+  background-color: #0b1220;
+  color: var(--text-main);
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+  color: #94a3b8;
+}
+
+:root[data-theme="dark"] table thead {
+  background-color: #111827 !important;
+}
+
+:root[data-theme="dark"] table tbody tr {
+  background-color: transparent;
+}
+
+:root[data-theme="dark"] .hover\:bg-slate-100:hover {
+  background-color: #1f2937 !important;
+}
+
+:root[data-theme="dark"] .hover\:bg-slate-50:hover {
+  background-color: #1f2937 !important;
+}
+
+:root[data-theme="dark"] .bg-slate-900 {
+  background-color: #0b1220 !important;
+}
+
+:root[data-theme="dark"] .hover\:bg-slate-800:hover {
+  background-color: #1e293b !important;
+}
+
+@media (max-width: 640px) {
+  .portal-bulletin {
+    width: 100%;
+    margin-top: 4px;
+    font-size: 11px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .portal-home {
+    background-image:
+      linear-gradient(rgba(71, 85, 105, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(71, 85, 105, 0.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-shell::before {
+    background-size: min(82vw, 380px);
+    background-position: center 62%;
+    opacity: 0.05;
+  }
+}

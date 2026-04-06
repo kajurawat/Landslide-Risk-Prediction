@@ -1,7 +1,7 @@
 import pickle
 from model.config.settings import ARTIFACTS_DIR, MODEL_PATH, SCALER_PATH
 
-def save_artifacts(best_model_name, best_model_obj, scaler):
+def save_artifacts(best_model_name, best_model_obj, scaler, all_models=None):
     """
     Save best model + scaler to disk.
 
@@ -15,8 +15,11 @@ def save_artifacts(best_model_name, best_model_obj, scaler):
 
     model_payload = {
         "model_name": best_model_name,
-        "model" : best_model_obj
+        "model" : best_model_obj,
     }
+
+    if all_models:
+        model_payload["all_models"] = all_models
 
     with open(MODEL_PATH, "wb") as f:
         pickle.dump(model_payload, f)

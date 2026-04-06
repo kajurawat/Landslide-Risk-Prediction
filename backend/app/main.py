@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.hello import router as hello_router
 from app.api.routes.data import router as data_router
+from app.api.routes.india_landslides import router as india_landslides_router
 from app.api.routes.predict import router as predict_router
 from app.api.routes.retrain import router as retrain_router
 from Iot.api.routes import router as iot_router
@@ -24,6 +25,7 @@ app.add_middleware(
 
 app.include_router(hello_router)
 app.include_router(data_router)
+app.include_router(india_landslides_router)
 app.include_router(predict_router)
 app.include_router(retrain_router)
 app.include_router(iot_router)

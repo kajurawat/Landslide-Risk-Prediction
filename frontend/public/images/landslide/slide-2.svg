@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-label="Rainfall and slope surveillance">
+  <defs>
+    <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f766e"/>
+      <stop offset="100%" stop-color="#99f6e4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="360" fill="url(#sky2)"/>
+  <path d="M0 230 L180 170 L380 240 L560 170 L760 240 L940 165 L1200 235 L1200 360 L0 360 Z" fill="#1f2937"/>
+  <g fill="#93c5fd" opacity="0.65">
+    <rect x="120" y="70" width="2" height="36"/>
+    <rect x="180" y="80" width="2" height="45"/>
+    <rect x="240" y="74" width="2" height="42"/>
+    <rect x="300" y="82" width="2" height="40"/>
+    <rect x="360" y="76" width="2" height="44"/>
+    <rect x="420" y="78" width="2" height="41"/>
+    <rect x="480" y="73" width="2" height="38"/>
+    <rect x="540" y="85" width="2" height="43"/>
+  </g>
+  <rect x="66" y="52" width="540" height="50" rx="8" fill="#0f172a" opacity="0.58"/>
+  <text x="86" y="84" fill="#f8fafc" font-family="Arial, sans-serif" font-size="28" font-weight="700">Rainfall-Triggered Slope Surveillance</text>
+</svg>

@@ -48,7 +48,9 @@ def run_training_pipeline():
     )
 
     #7 Save artifacts
-    save_artifacts(best_name, best_model_dict["model"], scaler)
+    all_models = {name: item["model"] for name, item in classical_results.items()}
+    all_models["Neural Network"] = nn_result["model"]
+    save_artifacts(best_name, best_model_dict["model"], scaler, all_models=all_models)
 
     print("\n=== Pipeline Complete ===")
     return {

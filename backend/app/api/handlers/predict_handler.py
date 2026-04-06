@@ -50,8 +50,38 @@ def _load_artifacts():
     with open(SCALER_PATH, "rb") as f:
         scaler = pickle.load(f)
 
-    model = model_payload["model"] if isinstance(model_payload, dict) else model_payload
-    return model, scaler
+    if isinstance(model_payload, dict):
+        model = model_payload.get("model")
+        model_name = model_payload.get("model_name", "Best Model")
+        all_models = model_payload.get("all_models")
+        if not all_models and model is not None:
+            all_models = {model_name: model}
+    else:
+        model = model_payload
+        model_name = "Best Model"
+        all_models = {model_name: model}
+
+    return model_name, model, all_models, scaler
+
+
+def _predict_with_model(model, X_scaled) -> dict:
+    if hasattr(model, "predict_proba"):
+        proba_raw = model.predict_proba(X_scaled)
+        if np.ndim(proba_raw) > 1 and proba_raw.shape[1] >= 2:
+            probability = float(proba_raw[0, 1])
+        else:
+            probability = float(np.ravel(proba_raw)[0])
+    else:
+        pred = int(np.ravel(model.predict(X_scaled))[0])
+        probability = float(pred)
+
+    probability = max(0.0, min(1.0, probability))
+    landslide = probability >= 0.5
+
+    return {
+        "landslide": bool(landslide),
+        "probability": round(probability, 2),
+    }
 
 def _build_feature_frame(payload: PredictRequest) -> pd.DataFrame:
     row = {
@@ -92,27 +122,33 @@ def _append_request_csv(payload: PredictRequest, result: dict) -> None:
         writer.writerow(row)
 
 def predict_landslide_service(payload: PredictRequest) -> dict:
-    model, scaler = _load_artifacts()
+    best_model_name, best_model, all_models, scaler = _load_artifacts()
     X = _build_feature_frame(payload)
 
     X_scaled = scaler.transform(X)
 
-    if hasattr(model, "predict_proba"):
-        proba_raw = model.predict_proba(X_scaled)
-        if np.ndim(proba_raw) > 1 and proba_raw.shape[1] >= 2:
-            probability = float(proba_raw[0, 1])
-        else:
-            probability = float(np.ravel(proba_raw)[0])
+    model_predictions: dict[str, dict[str, float | bool]] = {}
+    for name, model_obj in all_models.items():
+        try:
+            model_predictions[name] = _predict_with_model(model_obj, X_scaled)
+        except Exception:
+            continue
+
+    if best_model_name in model_predictions:
+        best_result = model_predictions[best_model_name]
+    elif model_predictions:
+        first_name = next(iter(model_predictions))
+        best_model_name = first_name
+        best_result = model_predictions[first_name]
     else:
-        pred = int(np.ravel(model.predict(X_scaled))[0])
-        probability = float(pred)
+        best_result = _predict_with_model(best_model, X_scaled)
+        model_predictions[best_model_name] = best_result
 
-    probability = max(0.0, min(1.0, probability))
-    landslide = probability >= 0.5
-
-    result =  {
-        "landslide" : bool(landslide),
-        "probability" : round(probability, 2),
+    result = {
+        "landslide": bool(best_result["landslide"]),
+        "probability": float(best_result["probability"]),
+        "best_model": best_model_name,
+        "model_predictions": model_predictions,
     }
 
     _append_request_csv(payload, result)

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-label="Landslide hillside monitoring scene">
+  <defs>
+    <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="360" fill="url(#sky1)"/>
+  <rect y="240" width="1200" height="120" fill="#0f172a" opacity="0.3"/>
+  <path d="M0 260 L220 140 L430 250 L670 120 L910 240 L1200 110 L1200 360 L0 360 Z" fill="#334155"/>
+  <path d="M280 210 L410 250 L500 215 L560 260 L620 225 L740 275 L610 360 L330 360 Z" fill="#7f1d1d" opacity="0.72"/>
+  <circle cx="980" cy="85" r="28" fill="#fef08a" opacity="0.9"/>
+  <rect x="64" y="52" width="460" height="50" rx="8" fill="#0f172a" opacity="0.6"/>
+  <text x="84" y="84" fill="#f8fafc" font-family="Arial, sans-serif" font-size="28" font-weight="700">Live Hillside Monitoring Corridor</text>
+</svg>

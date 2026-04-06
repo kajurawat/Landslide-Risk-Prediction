@@ -9,12 +9,12 @@ class DataResponse(BaseModel):
 
 
 class PredictRequest(BaseModel):
-    rainfall_mm: float = Field(..., ge=0.0, le=1000.0)
-    slope_angle: float = Field(..., ge=0.0, le=90.0)
+    rainfall_mm: float = Field(..., ge=50.0, le=300.0)
+    slope_angle: float = Field(..., ge=5.0, le=60.0)
     soil_saturation: float = Field(..., ge=0.0, le=1.0)
     vegetation_cover: float = Field(..., ge=0.0, le=1.0)
-    earthquake_activity: float = Field(..., ge=0.0, le=10.0)
-    proximity_to_water: float = Field(..., ge=0.0, le=50.0)
+    earthquake_activity: float = Field(..., ge=0.0, le=6.5)
+    proximity_to_water: float = Field(..., ge=0.0, le=2.0)
     soil_type_gravel: int = Field(..., ge=0, le=1)
     soil_type_sand: int = Field(..., ge=0, le=1)
     soil_type_silt: int = Field(..., ge=0, le=1)
@@ -52,6 +52,8 @@ class PredictRequest(BaseModel):
 class PredictResponse(BaseModel):
     landslide: bool
     probability: float = Field(..., ge=0.0, le=1.0)
+    best_model: str | None = None
+    model_predictions: dict[str, dict[str, float | bool]] = Field(default_factory=dict)
 
 
 class ErrorDetail(BaseModel):
