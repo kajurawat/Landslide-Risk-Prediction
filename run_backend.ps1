@@ -9,19 +9,37 @@ $ErrorActionPreference = 'Stop'
 
 function Get-FreePort {
     param(
+        [string]$BindAddress,
         [int]$StartPort,
         [int]$MaxAttempts = 20
     )
+
+    $ProbeAddress = $null
+    if ([string]::IsNullOrWhiteSpace($BindAddress) -or $BindAddress -eq '0.0.0.0') {
+        $ProbeAddress = [System.Net.IPAddress]::Any
+    }
+    elseif ($BindAddress -eq 'localhost') {
+        $ProbeAddress = [System.Net.IPAddress]::Loopback
+    }
+    else {
+        try {
+            $ProbeAddress = [System.Net.IPAddress]::Parse($BindAddress)
+        }
+        catch {
+            throw "Invalid bind host '$BindAddress'. Use localhost, 0.0.0.0, or a valid IP address."
+        }
+    }
 
     for ($i = 0; $i -lt $MaxAttempts; $i++) {
         $Candidate = $StartPort + $i
         $Listener = $null
         try {
-            $Listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Parse('127.0.0.1'), $Candidate)
+            $Listener = [System.Net.Sockets.TcpListener]::new($ProbeAddress, $Candidate)
             $Listener.Start()
             $Listener.Stop()
             return $Candidate
-        } catch {
+        }
+        catch {
             if ($Listener) {
                 try { $Listener.Stop() } catch {}
             }
@@ -46,9 +64,11 @@ Write-Host '[1/5] Checking Python...'
 $PythonCmd = $null
 if (Get-Command py -ErrorAction SilentlyContinue) {
     $PythonCmd = 'py -3'
-} elseif (Get-Command python -ErrorAction SilentlyContinue) {
+}
+elseif (Get-Command python -ErrorAction SilentlyContinue) {
     $PythonCmd = 'python'
-} else {
+}
+else {
     throw 'Python is not installed. Please install Python 3.11+ and re-run this script.'
 }
 
@@ -57,7 +77,8 @@ Set-Location $BackendDir
 Write-Host "[2/5] Creating virtual environment at $VenvDir"
 if ($PythonCmd -eq 'py -3') {
     py -3 -m venv $VenvDir
-} else {
+}
+else {
     python -m venv $VenvDir
 }
 
@@ -76,7 +97,7 @@ $null = New-Item -ItemType Directory -Force -Path (Join-Path $BackendDir 'data\r
 $null = New-Item -ItemType Directory -Force -Path (Join-Path $BackendDir 'data\processed')
 $null = New-Item -ItemType Directory -Force -Path (Join-Path $BackendDir 'model\artifacts')
 
-$SelectedPort = Get-FreePort -StartPort $Port
+$SelectedPort = Get-FreePort -BindAddress $BindHost -StartPort $Port
 if ($SelectedPort -ne $Port) {
     Write-Host "Port $Port is busy. Using free port $SelectedPort instead."
 }

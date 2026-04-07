@@ -5,9 +5,67 @@ HOST="127.0.0.1"
 PORT="8000"
 RELOAD="true"
 
-if [[ "${1:-}" == "--no-reload" ]]; then
-  RELOAD="false"
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --host)
+      HOST="${2:-}"
+      shift 2
+      ;;
+    --port)
+      PORT="${2:-}"
+      shift 2
+      ;;
+    --no-reload)
+      RELOAD="false"
+      shift
+      ;;
+    *)
+      echo "Unknown argument: $1"
+      echo "Usage: ./run_backend.sh [--host <host>] [--port <port>] [--no-reload]"
+      exit 1
+      ;;
+  esac
+done
+
+if ! [[ "${PORT}" =~ ^[0-9]+$ ]] || (( PORT < 1 || PORT > 65535 )); then
+  echo "Invalid --port value: ${PORT}. Expected 1-65535."
+  exit 1
 fi
+
+find_free_port() {
+  local host="$1"
+  local start_port="$2"
+  local max_attempts=20
+
+  for ((i=0; i<max_attempts; i++)); do
+    local candidate=$((start_port + i))
+
+    if python - "$host" "$candidate" <<'PY'
+import socket
+import sys
+
+host = sys.argv[1]
+port = int(sys.argv[2])
+bind_host = "0.0.0.0" if host in ("", "0.0.0.0") else host
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+try:
+    s.bind((bind_host, port))
+except OSError:
+    sys.exit(1)
+finally:
+    s.close()
+
+sys.exit(0)
+PY
+    then
+      echo "$candidate"
+      return 0
+    fi
+  done
+
+  return 1
+}
 
 # Resolve repository and backend paths.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -47,9 +105,18 @@ python -m pip install -r "${REQ_FILE}"
 echo "[5/5] Ensuring runtime folders exist"
 mkdir -p "${BACKEND_DIR}/data/raw" "${BACKEND_DIR}/data/processed" "${BACKEND_DIR}/model/artifacts"
 
-echo "Starting backend on http://${HOST}:${PORT} ..."
+SELECTED_PORT="$(find_free_port "${HOST}" "${PORT}")" || {
+  echo "No free port found from ${PORT} to $((PORT + 19))."
+  exit 1
+}
+
+if [[ "${SELECTED_PORT}" != "${PORT}" ]]; then
+  echo "Port ${PORT} is busy. Using free port ${SELECTED_PORT} instead."
+fi
+
+echo "Starting backend on http://${HOST}:${SELECTED_PORT} ..."
 if [[ "${RELOAD}" == "true" ]]; then
-  python -m uvicorn app.main:app --host "${HOST}" --port "${PORT}" --reload
+  python -m uvicorn app.main:app --host "${HOST}" --port "${SELECTED_PORT}" --reload
 else
-  python -m uvicorn app.main:app --host "${HOST}" --port "${PORT}"
+  python -m uvicorn app.main:app --host "${HOST}" --port "${SELECTED_PORT}"
 fi

@@ -36,11 +36,17 @@ python3 --version
 This method runs everything automatically:
 
 - create virtual environment
-- activate environment
 - upgrade pip tooling
 - install dependencies from `backend/requirements.txt`
 - ensure required runtime folders exist
-- start FastAPI backend
+- start FastAPI backend (`app.main:app`)
+
+Notes:
+
+- `run_backend.ps1` supports `-BindHost`, `-Port`, and `-NoReload`.
+- On Windows, if the requested port is busy, `run_backend.ps1` auto-selects the next free port.
+- `run_backend.sh` supports `--host`, `--port`, and `--no-reload`.
+- On Linux/macOS, if the requested port is busy, `run_backend.sh` auto-selects the next free port.
 
 ### Windows (PowerShell)
 
@@ -56,6 +62,13 @@ Optional (disable auto-reload):
 ```powershell
 cd C:\Users\acer\Music\landslide_prediction
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; .\run_backend.ps1 -NoReload
+```
+
+Optional (custom host/port):
+
+```powershell
+cd C:\Users\acer\Music\landslide_prediction
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; .\run_backend.ps1 -BindHost 0.0.0.0 -Port 8001
 ```
 
 ### Linux/macOS (bash)
@@ -74,6 +87,14 @@ Optional (disable auto-reload):
 cd /path/to/landslide_prediction
 chmod +x run_backend.sh
 ./run_backend.sh --no-reload
+```
+
+Optional (custom host/port):
+
+```bash
+cd /path/to/landslide_prediction
+chmod +x run_backend.sh
+./run_backend.sh --host 0.0.0.0 --port 8001
 ```
 
 ---
@@ -112,7 +133,18 @@ python -m pip install --upgrade pip setuptools wheel
 python -m pip install -r requirements.txt
 ```
 
-6. Ensure runtime directories:
+6. Optional: configure CORS in `.env` (loaded by backend on startup):
+
+```powershell
+@'
+CORS_ALLOW_ORIGINS=*
+CORS_ALLOW_METHODS=*
+CORS_ALLOW_HEADERS=*
+CORS_ALLOW_CREDENTIALS=false
+'@ | Set-Content -Path .env
+```
+
+7. Ensure runtime directories:
 
 ```powershell
 New-Item -ItemType Directory -Force -Path .\data\raw | Out-Null
@@ -120,7 +152,7 @@ New-Item -ItemType Directory -Force -Path .\data\processed | Out-Null
 New-Item -ItemType Directory -Force -Path .\model\artifacts | Out-Null
 ```
 
-7. Run backend:
+8. Run backend:
 
 ```powershell
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
@@ -158,13 +190,24 @@ python -m pip install --upgrade pip setuptools wheel
 python -m pip install -r requirements.txt
 ```
 
-6. Ensure runtime directories:
+6. Optional: configure CORS in `.env` (loaded by backend on startup):
+
+```bash
+cat > .env <<EOF
+CORS_ALLOW_ORIGINS=*
+CORS_ALLOW_METHODS=*
+CORS_ALLOW_HEADERS=*
+CORS_ALLOW_CREDENTIALS=false
+EOF
+```
+
+7. Ensure runtime directories:
 
 ```bash
 mkdir -p data/raw data/processed model/artifacts
 ```
 
-7. Run backend:
+8. Run backend:
 
 ```bash
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
@@ -176,8 +219,13 @@ python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 
 Open these URLs in browser:
 
-- API root docs: `http://127.0.0.1:8000/docs`
+- Swagger docs: `http://127.0.0.1:8000/docs`
+- Hello route: `http://127.0.0.1:8000/hello`
+- Dataset route: `http://127.0.0.1:8000/api/v1/data`
+- India landslides route: `http://127.0.0.1:8000/api/v1/india-landslides`
 - IoT health: `http://127.0.0.1:8000/api/v1/iot/health`
+
+If PowerShell auto-selected a different port, replace `8000` with the printed port.
 
 ---
 
@@ -185,7 +233,9 @@ Open these URLs in browser:
 
 ### Port 8000 already in use
 
-Use a different port manually:
+Use a different port manually.
+
+Auto setup note (Windows): `run_backend.ps1` automatically searches for a free port starting from the requested one.
 
 #### Windows
 
